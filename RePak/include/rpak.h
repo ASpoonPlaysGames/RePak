@@ -661,7 +661,19 @@ struct UnknownMaterialSectionV12
 	uint16_t VisibilityFlags = 0x0000;
 	uint16_t FaceDrawingFlags = 0x0006;
 	uint64_t UnkRender_padding; // might not actually be padding
+	
+	/*VisibilityFlags
+	0x0000 unknown
+	0x0001 inverted ignorez
+	0x0002 required when ignorez is enabled, why
+	0x0004 unknown but used in most opaque materials, not required
+	0x0008 
+	0x0010 seems to toggle transparency, will draw opaque if inverted ignorez is enabled
 
+	0x0017 used for most normal materials
+	0x0007 used for glass which makes me think 0x0010 is for translucency
+	0x0013 is vaild and looks normal  */
+	
 	/*FlagDrawingFlags Flags
 	0x0000 culling this is the same as 0x0002??? maybe the default?
 	0x0001 wireframe
@@ -741,7 +753,7 @@ struct MaterialCPUDataV12
 	0x00, 0x00, 0x80, 0x3F, 0x8F, 0xC2, 0xF5, 0x3C, 
 	0x8F, 0xC2, 0xF5, 0x3C, 0x8F, 0xC2, 0xF5, 0x3C
 	}; // this is actually floats but i cba to type all this default data in 
-
+	//also how the hell do you ender NAN as a float lmao??
 };
 
 // should be size of 208
@@ -777,6 +789,9 @@ struct MaterialHeaderV12
 	int16_t unk1 = 0;
 
 	// seems to be 0x50300 for loadscreens, 0x1D30 for normal materials
+	//this looks similar to the flags section in the apex materials
+	//second section has to do with tiling?
+	//0x0000001D has been observed, seems to invert lighting?
 	uint32_t Flags = 0x5030;
 
 	int16_t padding2 = 0; //always 0
@@ -790,8 +805,9 @@ struct MaterialHeaderV12
 
 	// seems to be 0x10000002 for loadscreens
 	uint32_t Flags2 = 0;
-
-	uint32_t unk8 = 0x00100000; // seems unchanged between all materials, including apex.
+	
+	//there are some edge cases where this is 0x00000000
+	uint32_t unk8 = 0x00100000; // seems mostly unchanged between all materials, including apex.
 
 	int16_t Width = 2048;
 	int16_t Height = 2048;
