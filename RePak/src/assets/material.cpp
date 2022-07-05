@@ -273,7 +273,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         }
         else {
 
-            Warning("Invaild type used! Defaulting to subtype 'weapon'... \n");
+            Warning("Invalid type used! Defaulting to subtype 'weapon'... \n");
 
             mtlHdr->ShaderSetGUID = 0x5259835D8C44A14D;
 
@@ -358,7 +358,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         }
         else {
 
-            Warning("Invaild type used! Defaulting to subtype 'weapon'... \n");
+            Warning("Invalid type used! Defaulting to subtype 'weapon'... \n");
 
             mtlHdr->ShaderSetGUID = 0xBD04CCCC982F8C15;
 
