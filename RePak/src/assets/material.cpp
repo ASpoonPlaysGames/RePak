@@ -80,7 +80,6 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         return;
     }
 
-
     uint32_t assetPathSize = (sAssetPath.length() + 1);
     uint32_t dataBufSize = (assetPathSize + (assetPathSize % 4)) + (textureRefSize * 2) + (surface.length() + 1);
 
