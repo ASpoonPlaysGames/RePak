@@ -51,11 +51,6 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     //if (mapEntry.HasMember("flags")) // Set flags properly. Responsible for texture stretching, tiling etc.
     //    mtlHdr->ImageFlags = mapEntry["flags"].GetUint();
 
-    /*if (mapEntry.HasMember("flags")) {
-
-
-    }*/
-
     if (mapEntry.HasMember("faceflags")) {
         mtlHdr->unknownSection[0].FaceDrawingFlags = mapEntry["faceflags"].GetInt();
         mtlHdr->unknownSection[1].FaceDrawingFlags = mapEntry["faceflags"].GetInt();
@@ -195,7 +190,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         }
         else {
 
-            Warning("Invaild type used! Defaulting to subtype 'loadscreen'... \n");
+            Warning("Invalid type used! Defaulting to subtype 'loadscreen'... \n");
 
             mtlHdr->Flags2 = 0x10000002;
 
@@ -521,7 +516,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     if (mapEntry.HasMember("selfillumintensity"))
         selfillumintensity = mapEntry["selfillumintensity"].GetFloat();
 
-    //these should also be changed into an array of floats for the texture transform matrix, something like "detailtexturetransform" should work..
+    // these should also be changed into an array of floats for the texture transform matrix, something like "detailtexturetransform" should work..
     if (mapEntry.HasMember("detail_scale_x"))
         cpudata.DetailTransform->TextureScaleX = mapEntry["detail_scale_x"].GetFloat();
 
@@ -533,7 +528,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         cpudata.SelfillumTint->R = selfillumintensity;
         cpudata.SelfillumTint->G = selfillumintensity;
         cpudata.SelfillumTint->B = selfillumintensity;
-        cpudata.SelfillumTint->A = 0.0; //should change once array is implemented.
+        cpudata.SelfillumTint->A = 0.0; // should change once array is implemented.
     }
     else
     {
