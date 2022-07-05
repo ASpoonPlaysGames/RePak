@@ -339,7 +339,7 @@ struct TextureHeader
 	uint8_t unknown_3;
 	uint8_t permanentMipLevels;
 	uint8_t streamedMipLevels;
-	uint8_t unknown_4[21]; // bonus padding of 8
+	uint8_t unknown_4[21];
 };
 
 struct UIImageHeader
@@ -697,7 +697,7 @@ struct MaterialTextureTransformMatrix
 	float TextureTranslateY = 0.0;
 	
 };
-//this is probably an awful way of doing this that someone smart should fix later.
+// this is probably an awful way of doing this that someone smart should fix later.
 struct RGBAVec4
 {
 
@@ -711,23 +711,17 @@ struct RGBAVec4
 struct MaterialCPUDataV12
 {
 
-	MaterialTextureTransformMatrix DetailTransform[1]; //detail texture transform matrix
-	MaterialTextureTransformMatrix TextureTransform[2]; //1st is presumably texture (unconfirmed), 2nd assumed to be texture.
+	MaterialTextureTransformMatrix DetailTransform[1]; // detail texture transform matrix
+	MaterialTextureTransformMatrix TextureTransform[2]; // 1st is presumably texture (unconfirmed), 2nd assumed to be texture.
 
-	//this might be another texture transform matrix.
+	// this might be another texture transform matrix.
 	float UnkFloat2[6] = {
 		0.0, 0.0, 0.0, 0.0, 1.0, 0.0
 	};
 
 	RGBAVec4 MainTint[1];
 
-	/*float MainR = 1.0;
-	float MainG = 1.0;
-	float MainB = 1.0;
-
-	float UnkFloat = 1.0; //likely just an alpha channel adjustment for above floats*/
-
-	//these are vector4s for rgba I would think.
+	// these are vector4s for rgba I would think.
 	float UnkData1[12] = {
 
 		0.0, 0.0, 0.0, 0.0,
@@ -738,13 +732,7 @@ struct MaterialCPUDataV12
 
 	RGBAVec4 SelfillumTint[1];
 
-	/*float SelfIllumR;
-	float SelfIllumG;
-	float SelfIllumB;
-
-	float UnkFloat1; //probably just alpha channel for self illum*/
-
-	//these are (more) vector4s for rgba I would think.
+	// these are (more) vector4s for rgba I would think.
 	uint8_t UnkData2[12 * 4] = {
 	0x00, 0x00, 0x00, 0x00, 0x66, 0x66, 0x66, 0x3F, 
 	0x00, 0x00, 0x20, 0x41, 0x00, 0x00, 0x00, 0x00, 
@@ -753,7 +741,7 @@ struct MaterialCPUDataV12
 	0x00, 0x00, 0x80, 0x3F, 0x8F, 0xC2, 0xF5, 0x3C, 
 	0x8F, 0xC2, 0xF5, 0x3C, 0x8F, 0xC2, 0xF5, 0x3C
 	}; // this is actually floats but i cba to type all this default data in 
-	//also how the hell do you ender NAN as a float lmao??
+	// also how the hell do you ender NAN as a float lmao??
 };
 
 // should be size of 208
@@ -771,13 +759,12 @@ struct MaterialHeaderV12
 	// IDX 2: DepthPrepass
 	// IDX 3: DepthVSM
 	// IDX 4: ColPass
-	// They seem to be the exact same for all materials throughout the game. (this is untrue)
-	// ONE OF THESE IS MISSING FOR TITANFALL? (yes)
+	// Titanfall is does not have 'DepthShadowTight'
 
 	uint64_t GUIDRefs[4]{}; // Required to have proper textures.
 
 	// these blocks dont seem to change often but are the same?
-	//these blocks relate to different render filters and flags. still not well understood.
+	// these blocks relate to different render filters and flags. still not well understood.
 	UnknownMaterialSectionV12 unknownSection[2];
 
 	uint64_t ShaderSetGUID = 0; // guid of the shaderset asset that this material uses
@@ -789,14 +776,14 @@ struct MaterialHeaderV12
 	int16_t unk1 = 0;
 
 	// seems to be 0x50300 for loadscreens, 0x1D30 for normal materials
-	//this looks similar to the flags section in the apex materials
-	//second section has to do with tiling?
-	//0x0000001D has been observed, seems to invert lighting?
+	// this looks similar to the flags section in the apex materials
+	// second section has to do with tiling?
+	// 0x0000001D has been observed, seems to invert lighting?
 	uint32_t Flags = 0x5030;
 
-	int16_t padding2 = 0; //always 0
+	int16_t padding2 = 0; // always 0
 
-	uint64_t padding3 = 0; //never anything here
+	uint64_t padding3 = 0; // never anything here
 
 	// seems to be 0xFBA63181 for loadscreens
 	uint32_t unk6 = 0xFBA63181; // no clue tbh
@@ -806,7 +793,7 @@ struct MaterialHeaderV12
 	// seems to be 0x10000002 for loadscreens
 	uint32_t Flags2 = 0;
 	
-	//there are some edge cases where this is 0x00000000
+	// there are some edge cases where this is 0x00000000
 	uint32_t unk8 = 0x00100000; // seems mostly unchanged between all materials, including apex.
 
 	int16_t Width = 2048;
