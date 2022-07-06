@@ -410,7 +410,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     bool bColpass = false;
     if (mapEntry.HasMember("colpass"))
     {
-        std::string colpassPath = "material/" + mapEntry["colpass"].GetStdString() + ".rpak";
+        std::string colpassPath = "material/" + mapEntry["colpass"].GetStdString() + "_" + type + ".rpak";
         mtlHdr->GUIDRefs[3] = RTech::StringToGuid(colpassPath.c_str());
 
         RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 24);
@@ -552,7 +552,10 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     asset.m_nVersion = version;
 
     asset.m_nPageEnd = cpuseginfo.index + 1;
-    asset.unk1 = bColpass ? 7 : 8; // what
+    //asset.unk1 = bColpass ? 7 : 8; // what
+    // unk1 appears to be maxusecount, although seemingly nothing is affected by changing it unless you exceed 18.
+    // In every TF|2 asset entry I've looked at it's always UsesCount + 1.
+    asset.unk1 = assetUsesCount + 1;
 
     asset.m_nUsesStartIdx = fileRelationIdx;
     asset.m_nUsesCount = assetUsesCount;
