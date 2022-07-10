@@ -11,6 +11,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
     std::string type = "skn";
     std::string subtype = "";
+    std::string visibility = "opaque";
     uint32_t version = 16;
 
     if (mapEntry.HasMember("type"))
@@ -51,6 +52,46 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     //if (mapEntry.HasMember("flags")) // Set flags properly. Responsible for texture stretching, tiling etc.
     //    mtlHdr->ImageFlags = mapEntry["flags"].GetUint();
 
+    if (mapEntry.HasMember("visibilityflags")) {
+
+        visibility = mapEntry["visibilityflags"].GetString();
+
+        if (visibility == "opaque") {
+
+            mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
+            mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
+
+        }
+        else if (visibility == "transparent") {
+
+            // this will not work properly unless some flags are added in Flags2
+            mtlHdr->unknownSection[0].VisibilityFlags = 0x0007;
+            mtlHdr->unknownSection[1].VisibilityFlags = 0x0007;
+
+        }
+        else if (visibility == "colpass") {
+
+            mtlHdr->unknownSection[0].VisibilityFlags = 0x0005;
+            mtlHdr->unknownSection[1].VisibilityFlags = 0x0005;
+
+        }
+        else if (visibility == "none") {
+
+            // for loadscreens
+            mtlHdr->unknownSection[0].VisibilityFlags = 0x0000;
+            mtlHdr->unknownSection[1].VisibilityFlags = 0x0000;
+
+        }
+        else {
+
+            Log("No valid visibility specified, defaulting to opaque.. \n");
+
+            mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
+            mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
+
+        }
+    }
+
     if (mapEntry.HasMember("faceflags")) {
         mtlHdr->unknownSection[0].FaceDrawingFlags = mapEntry["faceflags"].GetInt();
         mtlHdr->unknownSection[1].FaceDrawingFlags = mapEntry["faceflags"].GetInt();
@@ -62,10 +103,16 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     }
 
     std::string surface = "default";
+    //std::string surface2 = "default";
 
     // surfaces are defined in scripts/surfaceproperties.rson
+    // titanfall surfaces are defined in scripts/surfaceproperties.txt
     if (mapEntry.HasMember("surface"))
         surface = mapEntry["surface"].GetStdString();
+
+    // rarely used edge case but it's good to have.
+    /*if (mapEntry.HasMember("surface2"))
+        surface2 = mapEntry["surface2"].GetStdString();*/
 
     // Get the size of the texture guid section.
     size_t textureRefSize = 0;
@@ -80,8 +127,22 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         return;
     }
 
+    int surfaceDataBuffLength = 0;
+    surfaceDataBuffLength = (surface.length() + 1);
+
+    /*if (mapEntry.HasMember("surface2")) {
+
+        surfaceDataBuffLength = (surface.length() + 1) + (surface2.length() + 1);
+
+    }
+    else {
+
+        surfaceDataBuffLength = (surface.length() + 1);
+
+    }*/
+
     uint32_t assetPathSize = (sAssetPath.length() + 1);
-    uint32_t dataBufSize = (assetPathSize + (assetPathSize % 4)) + (textureRefSize * 2) + (surface.length() + 1);
+    uint32_t dataBufSize = (assetPathSize + (assetPathSize % 4)) + (textureRefSize * 2) + surfaceDataBuffLength;
 
     // asset header
     _vseginfo_t subhdrinfo = RePak::CreateNewSegment(sizeof(MaterialHeaderV12), 0, 8);
@@ -135,7 +196,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         {
             //uint64_t guid = RTech::StringToGuid((it.GetStdString() + ".rpak").c_str());
 
-            //there should not be anything here so it shall remain 0
+            // there should not be anything here so it shall remain 0
             uint64_t guid = 0x0000000000000000;
 
             *(uint64_t*)dataBuf = guid;
@@ -162,6 +223,14 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     // write the surface name into the buffer
     snprintf(dataBuf, surface.length() + 1, "%s", surface.c_str());
 
+    /*if (mapEntry.HasMember("surface2")) {
+
+        snprintf(dataBuf, (surface.length() + 1) + (surface2.length() + 1), "%s", surface2.c_str());
+
+        Log("wrote it \n");
+
+    }*/
+
     // get the original pointer back so it can be used later for writing the buffer
     dataBuf = tmp;
 
@@ -175,6 +244,15 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
     RePak::RegisterDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, Name));
     RePak::RegisterDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, SurfaceName));
+
+    /*if (mapEntry.HasMember("surface2")) {
+
+        mtlHdr->SurfaceName2.m_nIndex = dataseginfo.index;
+        mtlHdr->SurfaceName2.m_nOffset = (sAssetPath.length() + 1) + assetPathAlignment + (textureRefSize * 2) + (surface.length() + 1);
+
+        RePak::RegisterDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, SurfaceName2));
+
+    }*/
 
     // Type Handling
     if (type == "gen")
@@ -214,6 +292,8 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     {
         Warning("Type 'wld' is not supported currently!!!");
         return;
+
+        // below is legacy data from V16 materials.
         /*
         // THIS IS 'wld' IN TITANFALL (I think)
 
@@ -239,45 +319,65 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     else if (type == "fix")
     {
 
-        if (subtype == "pilot") {
+        if (subtype == "worldmodel") {
 
+            // supports a set of seven textures.
+            // viewmodel shadersets don't seem to allow ilm in third person, this set supports it.
             mtlHdr->ShaderSetGUID = 0x586783F71E99553D;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56000020;
 
         }
-        else if (subtype == "pilot_skn31") {
+        else if (subtype == "worldmodel_skn31") {
 
+            // supports a set of seven textures plus a set of two relating to detail textures (camos).
             mtlHdr->ShaderSetGUID = 0x5F8181FEFDB0BAD8;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56040020;
 
         }
-        else if (subtype == "weapon") {
+        else if (subtype == "worldmodel_noglow") {
 
-            mtlHdr->ShaderSetGUID = 0x5259835D8C44A14D;
+            // supports a set of six textures, lacks ilm.
+            // there is a different one used for viewmodels, unsure what difference it makes considering the lack of ilm.
+            mtlHdr->ShaderSetGUID = 0x477A8F31B5963070;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56000020;
 
         }
-        else if (subtype == "weapon_skn31") {
+        else if (subtype == "worldmodel_skn31_noglow") {
 
+            // supports a set of six textures plus a set of two relating to detail textures (camos), lacks ilm.
+            // same as above, why.
+            mtlHdr->ShaderSetGUID = 0xC9B736D2C8027726;
+
+            mtlHdr->Flags2 = 0x56040020;
+
+        }
+        else if (subtype == "viewmodel") {
+
+            // supports a set of seven textures.
+            // worldmodel shadersets don't seem to allow ilm in first person, this set supports it.
+            mtlHdr->ShaderSetGUID = 0x5259835D8C44A14D;
+
+            mtlHdr->Flags2 = 0x56000020;
+
+        }
+        else if (subtype == "viewmodel_skn31") {
+
+            // supports a set of seven textures plus a set of two relating to detail textures (camos).
             mtlHdr->ShaderSetGUID = 0x19F840A12774CA4C;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56040020;
 
         }
         else {
 
-            Warning("Invalid type used! Defaulting to subtype 'weapon'... \n");
+            Warning("Invalid type used! Defaulting to subtype 'viewmodel'... \n");
 
+            // same as 'viewmodel'.
             mtlHdr->ShaderSetGUID = 0x5259835D8C44A14D;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56000020;
 
         }
@@ -299,7 +399,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         mtlHdr->unknownSection[0].UnkRenderUnknown = 0x00138004;
 
         mtlHdr->unknownSection[0].UnkRenderFlags = 0x00000004;
-        mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
+        //mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[0].FaceDrawingFlags = 0x0006;
 
         mtlHdr->unknownSection[1].UnkRenderLighting = 0xF0138004;
@@ -308,7 +408,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         mtlHdr->unknownSection[1].UnkRenderUnknown = 0x00138004;
 
         mtlHdr->unknownSection[1].UnkRenderFlags = 0x00000004;
-        mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
+        //mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[1].FaceDrawingFlags = 0x0006;
 
         mtlHdr->Flags = 0x001D0300;
@@ -318,51 +418,79 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     }
     else if (type == "rgd")
     {
+        // todo: figure out what rgd is used for.
         Warning("Type 'rgd' is not supported currently!!!");
         return;
     }
     else if (type == "skn")
     {
 
-        if (subtype == "pilot") {
+        if (subtype == "worldmodel") {
 
+            // supports a set of seven textures.
+            // viewmodel shadersets don't seem to allow ilm in third person, this set supports it.
             mtlHdr->ShaderSetGUID = 0xC3ACAF7F1DC7F389;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56000020;
 
         }
-        else if (subtype == "pilot_skn31") {
+        else if (subtype == "worldmodel_skn31") {
 
+            // supports a set of seven textures plus a set of two relating to detail textures (camos).
             mtlHdr->ShaderSetGUID = 0x4CFB9F15FD2DE909;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56040020;
 
         }
-        else if (subtype == "weapon") {
+        else if (subtype == "worldmodel_noglow") {
 
-            mtlHdr->ShaderSetGUID = 0xBD04CCCC982F8C15;
+            // supports a set of six textures, lacks ilm.
+            // there is a different one used for viewmodels, unsure what difference it makes considering the lack of ilm.
+            mtlHdr->ShaderSetGUID = 0x34A7BB3C163A8139;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56000020;
 
         }
-        else if (subtype == "weapon_skn31") {
+        else if (subtype == "worldmodel_skn31_noglow") {
 
+            // supports a set of six textures plus a set of two relating to detail textures (camos), lacks ilm.
+            // same as above, why.
+            mtlHdr->ShaderSetGUID = 0x98EA4745D8801A9B;
+
+            mtlHdr->Flags2 = 0x56040020;
+
+        }
+        else if (subtype == "viewmodel") {
+
+            // supports a set of seven textures.
+            // worldmodel shadersets don't seem to allow ilm in first person, this set supports it.
+            mtlHdr->ShaderSetGUID = 0xBD04CCCC982F8C15;
+
+            mtlHdr->Flags2 = 0x56000020;
+
+        }
+        else if (subtype == "viewmodel_skn31") {
+
+            // supports a set of seven textures plus a set of two relating to detail textures (camos).
             mtlHdr->ShaderSetGUID = 0x07BF4EC4B9632A03;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56040020;
+
+        }
+        else if (subtype == "test1") {
+
+            mtlHdr->ShaderSetGUID = 0x942791681799941D;
+
+            mtlHdr->Flags2 = 0x56040022;
 
         }
         else {
 
-            Warning("Invalid type used! Defaulting to subtype 'weapon'... \n");
+            Warning("Invalid type used! Defaulting to subtype 'viewmodel'... \n");
 
+            // same as 'viewmodel'.
             mtlHdr->ShaderSetGUID = 0xBD04CCCC982F8C15;
 
-            // default flags for skn
             mtlHdr->Flags2 = 0x56000020;
 
         }
@@ -384,7 +512,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         mtlHdr->unknownSection[0].UnkRenderUnknown = 0x00138004;
 
         mtlHdr->unknownSection[0].UnkRenderFlags = 0x00000004;
-        mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
+        //mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[0].FaceDrawingFlags = 0x0006;
 
         mtlHdr->unknownSection[1].UnkRenderLighting = 0xF0138004;
@@ -393,7 +521,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         mtlHdr->unknownSection[1].UnkRenderUnknown = 0x00138004;
 
         mtlHdr->unknownSection[1].UnkRenderFlags = 0x00000004;
-        mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
+        //mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[1].FaceDrawingFlags = 0x0006;
 
         mtlHdr->Flags = 0x001D0300;
@@ -415,7 +543,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
         RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 24);
         RePak::AddFileRelation(assetEntries->size());
-        //assetUsesCount++;
+        assetUsesCount++;
 
         bColpass = false;
     }
@@ -554,7 +682,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     asset.m_nPageEnd = cpuseginfo.index + 1;
     //asset.unk1 = bColpass ? 7 : 8; // what
     // unk1 appears to be maxusecount, although seemingly nothing is affected by changing it unless you exceed 18.
-    // In every TF|2 asset entry I've looked at it's always UsesCount + 1.
+    // In every TF|2 material asset entry I've looked at it's always UsesCount + 1.
     asset.unk1 = assetUsesCount + 1;
 
     asset.m_nUsesStartIdx = fileRelationIdx;
