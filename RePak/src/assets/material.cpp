@@ -220,24 +220,23 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     }
 
     // ===============================
-    // write the surface names into the buffer
-    snprintf(dataBuf, surface.length() + 1, "%s", surface.c_str());
-
+    // write the surface names into the buffer.
+    // this is an extremely janky way to do this but I don't know better, basically it writes surface2 first so then the first can overwrite it.
+    // please someone do this better I beg you.
     if (mapEntry.HasMember("surface2")) {
 
-        //snprintf(dataBuf, surface.length() + 1, "%s", surface.c_str());
-        snprintf(dataBuf, (surface.length() + 1) + (surface2.length() + 1), "%s", surface2.c_str());
+        std::string surfaceStrTmp = surface + " " + surface2;
 
-        Log("wrote 1 & 2 \n");
+        snprintf(dataBuf, (surface.length() + 1) + (surface2.length() + 1), "%s", surfaceStrTmp.c_str());
+        snprintf(dataBuf, surface.length() + 1, "%s", surface.c_str());
 
     }
-    /*else {
+    else {
 
         snprintf(dataBuf, surface.length() + 1, "%s", surface.c_str());
 
-        Log("wrote 1");
+    }
 
-    }*/
 
     // get the original pointer back so it can be used later for writing the buffer
     dataBuf = tmp;
