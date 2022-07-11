@@ -55,41 +55,41 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     if (mapEntry.HasMember("visibilityflags")) {
 
         visibility = mapEntry["visibilityflags"].GetString();
+        uint16_t visFlag = 0x0017;
 
         if (visibility == "opaque") {
 
-            mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
-            mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
+            visFlag = 0x0017;
 
         }
         else if (visibility == "transparent") {
 
             // this will not work properly unless some flags are added in Flags2
-            mtlHdr->unknownSection[0].VisibilityFlags = 0x0007;
-            mtlHdr->unknownSection[1].VisibilityFlags = 0x0007;
+            visFlag = 0x0007;
 
         }
         else if (visibility == "colpass") {
 
-            mtlHdr->unknownSection[0].VisibilityFlags = 0x0005;
-            mtlHdr->unknownSection[1].VisibilityFlags = 0x0005;
+            visFlag = 0x0005;
 
         }
         else if (visibility == "none") {
 
             // for loadscreens
-            mtlHdr->unknownSection[0].VisibilityFlags = 0x0000;
-            mtlHdr->unknownSection[1].VisibilityFlags = 0x0000;
+            visFlag = 0x0000;
 
         }
         else {
 
-            Log("No valid visibility specified, defaulting to opaque.. \n");
+            Log("No valid visibility specified, defaulting to opaque... \n");
 
-            mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
-            mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
+            visFlag = 0x0017;
 
         }
+
+        mtlHdr->unknownSection[0].VisibilityFlags = visFlag;
+        mtlHdr->unknownSection[1].VisibilityFlags = visFlag;
+
     }
 
     if (mapEntry.HasMember("faceflags")) {
@@ -103,7 +103,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     }
 
     std::string surface = "default";
-    //std::string surface2 = "default";
+    std::string surface2 = "default";
 
     // surfaces are defined in scripts/surfaceproperties.rson
     // titanfall surfaces are defined in scripts/surfaceproperties.txt
@@ -111,8 +111,8 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         surface = mapEntry["surface"].GetStdString();
 
     // rarely used edge case but it's good to have.
-    /*if (mapEntry.HasMember("surface2"))
-        surface2 = mapEntry["surface2"].GetStdString();*/
+    if (mapEntry.HasMember("surface2"))
+        surface2 = mapEntry["surface2"].GetStdString();
 
     // Get the size of the texture guid section.
     size_t textureRefSize = 0;
@@ -128,9 +128,9 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     }
 
     int surfaceDataBuffLength = 0;
-    surfaceDataBuffLength = (surface.length() + 1);
+   // surfaceDataBuffLength = (surface.length() + 1);
 
-    /*if (mapEntry.HasMember("surface2")) {
+    if (mapEntry.HasMember("surface2")) {
 
         surfaceDataBuffLength = (surface.length() + 1) + (surface2.length() + 1);
 
@@ -139,7 +139,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
         surfaceDataBuffLength = (surface.length() + 1);
 
-    }*/
+    }
 
     uint32_t assetPathSize = (sAssetPath.length() + 1);
     uint32_t dataBufSize = (assetPathSize + (assetPathSize % 4)) + (textureRefSize * 2) + surfaceDataBuffLength;
@@ -220,14 +220,22 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     }
 
     // ===============================
-    // write the surface name into the buffer
+    // write the surface names into the buffer
     snprintf(dataBuf, surface.length() + 1, "%s", surface.c_str());
 
-    /*if (mapEntry.HasMember("surface2")) {
+    if (mapEntry.HasMember("surface2")) {
 
+        //snprintf(dataBuf, surface.length() + 1, "%s", surface.c_str());
         snprintf(dataBuf, (surface.length() + 1) + (surface2.length() + 1), "%s", surface2.c_str());
 
-        Log("wrote it \n");
+        Log("wrote 1 & 2 \n");
+
+    }
+    /*else {
+
+        snprintf(dataBuf, surface.length() + 1, "%s", surface.c_str());
+
+        Log("wrote 1");
 
     }*/
 
@@ -245,14 +253,14 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     RePak::RegisterDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, Name));
     RePak::RegisterDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, SurfaceName));
 
-    /*if (mapEntry.HasMember("surface2")) {
+    if (mapEntry.HasMember("surface2")) {
 
         mtlHdr->SurfaceName2.m_nIndex = dataseginfo.index;
         mtlHdr->SurfaceName2.m_nOffset = (sAssetPath.length() + 1) + assetPathAlignment + (textureRefSize * 2) + (surface.length() + 1);
 
         RePak::RegisterDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, SurfaceName2));
 
-    }*/
+    }
 
     // Type Handling
     if (type == "gen")
