@@ -225,7 +225,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     // please someone do this better I beg you.
     if (mapEntry.HasMember("surface2")) {
 
-        std::string surfaceStrTmp = surface + " " + surface2;
+        std::string surfaceStrTmp = surface + "." + surface2;
 
         snprintf(dataBuf, (surface.length() + 1) + (surface2.length() + 1), "%s", surfaceStrTmp.c_str());
         snprintf(dataBuf, surface.length() + 1, "%s", surface.c_str());
@@ -282,8 +282,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
         }
 
-    // These should always be constant (per each material type)
-    // There's different versions of these for each material type\
+        // These should always be constant (per each material type)
         // GUIDRefs[3] is Colpass entry, however loadscreens do not have colpass materials.
 
         mtlHdr->GUIDRefs[0] = 0x0000000000000000;
@@ -297,8 +296,8 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     }
     else if (type == "wld")
     {
-        Warning("Type 'wld' is not supported currently!!!");
-        return;
+        //Warning("Type 'wld' is not supported currently!!!");
+        //return;
 
         // below is legacy data from V16 materials.
         /*
@@ -322,6 +321,61 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
         mtlHdr->ShaderSetGUID = 0x4B0F3B4CBD009096;
         */
+
+
+        if (subtype == "test1") {
+
+            mtlHdr->ShaderSetGUID = 0x8FB5DB9ADBEB1CBC;
+
+            mtlHdr->Flags2 = 0x72000002;
+
+        }
+        else {
+
+            Warning("Invalid type used! Defaulting to subtype 'viewmodel'... \n");
+
+            // same as 'viewmodel'.
+            mtlHdr->ShaderSetGUID = 0x8FB5DB9ADBEB1CBC;
+
+            mtlHdr->Flags2 = 0x72000002;
+
+        }
+
+        
+        mtlHdr->GUIDRefs[0] = 0x0000000000000000;
+        mtlHdr->GUIDRefs[1] = 0x0000000000000000;
+        mtlHdr->GUIDRefs[2] = 0x0000000000000000;
+
+        /*RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs));
+        RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 8);
+        RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 16);
+
+        RePak::AddFileRelation(assetEntries->size(), 3);
+        assetUsesCount += 3;*/
+
+        //mtlHdr->unknownSection[0].UnkRenderLighting = 0xF0138004;
+        //mtlHdr->unknownSection[0].UnkRenderAliasing = 0xF0138004;
+        //mtlHdr->unknownSection[0].UnkRenderDoF = 0xF0138004;
+        //mtlHdr->unknownSection[0].UnkRenderUnknown = 0x00138004;
+
+        mtlHdr->unknownSection[0].UnkRenderFlags = 0x00000005;
+        //mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
+        //mtlHdr->unknownSection[0].FaceDrawingFlags = 0x0006;
+
+        //mtlHdr->unknownSection[1].UnkRenderLighting = 0xF0138004;
+        //mtlHdr->unknownSection[1].UnkRenderAliasing = 0xF0138004;
+        //mtlHdr->unknownSection[1].UnkRenderDoF = 0xF0138004;
+        //mtlHdr->unknownSection[1].UnkRenderUnknown = 0x00138004;
+
+        mtlHdr->unknownSection[1].UnkRenderFlags = 0x00000005;
+        //mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
+        //mtlHdr->unknownSection[1].FaceDrawingFlags = 0x0006;
+
+        mtlHdr->Flags = 0x001D0300;
+
+        mtlHdr->unk6 = 0x40D33E8F;
+
+
     }
     else if (type == "fix")
     {
@@ -548,6 +602,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         std::string colpassPath = "material/" + mapEntry["colpass"].GetStdString() + "_" + type + ".rpak";
         mtlHdr->GUIDRefs[3] = RTech::StringToGuid(colpassPath.c_str());
 
+        // todo, the relations count is not being set properly on the colpass for whatever reason.
         RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 24);
         RePak::AddFileRelation(assetEntries->size());
         assetUsesCount++;
@@ -645,7 +700,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
     bool bSelfIllum = mapEntry.HasMember("selfIllum") && mapEntry["selfIllum"].GetBool();
     std::float_t selfillumintensity = 1.0; //this should be swapped over to array of floats named "selfillumtint".
-   // std::float_t selfillumtint[4] = { };
+    //std::float_t selfillumtint[4] = { };
 
     if (mapEntry.HasMember("selfillumintensity"))
         selfillumintensity = mapEntry["selfillumintensity"].GetFloat();
@@ -659,18 +714,23 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
     if (bSelfIllum && mapEntry.HasMember("selfillumintensity"))
     {
-        cpudata.SelfillumTint->R = selfillumintensity;
-        cpudata.SelfillumTint->G = selfillumintensity;
-        cpudata.SelfillumTint->B = selfillumintensity;
-        cpudata.SelfillumTint->A = 0.0; // should change once array is implemented.
+        cpudata.SelfillumTint->r = selfillumintensity;
+        cpudata.SelfillumTint->g = selfillumintensity;
+        cpudata.SelfillumTint->b = selfillumintensity;
+        cpudata.SelfillumTint->a = 0.0; // should change once array is implemented.
     }
     else
     {
-        cpudata.SelfillumTint->R = 0.0;
-        cpudata.SelfillumTint->G = 0.0;
-        cpudata.SelfillumTint->B = 0.0;
-        cpudata.SelfillumTint->A = 0.0;
+        cpudata.SelfillumTint->r = 0.0;
+        cpudata.SelfillumTint->g = 0.0;
+        cpudata.SelfillumTint->b = 0.0;
+        cpudata.SelfillumTint->a = 0.0;
     }
+
+    cpudata.MainTint->r = 1.0;
+    cpudata.MainTint->g = 1.0;
+    cpudata.MainTint->b = 1.0;
+    cpudata.MainTint->a = 1.0;
 
     memcpy_s(cpuData + sizeof(MaterialCPUHeader), cpuDataSize, &cpudata, cpuDataSize);
     //////////////////////////////////////////
