@@ -294,7 +294,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
         mtlHdr->ImageFlags = 0x050300;
 
-        mtlHdr->something2 = 0xFBA63181;
+        mtlHdr->Unknown2 = 0xFBA63181;
 
     }
     else if (type == "wld")
@@ -376,7 +376,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
         mtlHdr->ImageFlags = 0x1D0300;
 
-        mtlHdr->something2 = 0x40D33E8F;
+        mtlHdr->Unknown2 = 0x40D33E8F;
 
 
     }
@@ -477,7 +477,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
         mtlHdr->ImageFlags = 0x1D0300;
 
-        mtlHdr->something2 = 0x40D33E8F;
+        mtlHdr->Unknown2 = 0x40D33E8F;
 
     }
     else if (type == "rgd")
@@ -590,7 +590,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
         mtlHdr->ImageFlags = 0x1D0300;
 
-        mtlHdr->something2 = 0x40D33E8F;
+        mtlHdr->Unknown2 = 0x40D33E8F;
 
     }
 
