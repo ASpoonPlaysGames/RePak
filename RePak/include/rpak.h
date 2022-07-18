@@ -835,7 +835,7 @@ struct MaterialHeaderV12
 	uint32_t Unk2 = 0; // this might actually be "Alignment"
 
 	uint32_t Flags2 = 0;
-	uint32_t something2 = 0x100000; // seems mostly unchanged between all materials, including apex, however there are some edge cases where this is 0x00.
+	uint32_t something2 = 0x0; // seems mostly unchanged between all materials, including apex, however there are some edge cases where this is 0x00.
 
 	int16_t Width = 2048;
 	int16_t Height = 2048;
