@@ -35,13 +35,16 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
     mtlHdr->AssetGUID = RTech::StringToGuid(sFullAssetRpakPath.c_str()); // Convert full rpak asset path to textureGUID and set it in the material header.
 
+    // this was for 'UnknownSignature' but isn't valid anymore I think.
     // Game ignores this field when parsing, retail rpaks also have this as 0. But In-Game its being set to either 0x4, 0x5, 0x9.
     // Based on resolution.
     // 512x512 = 0x5
     // 1024x1024 = 0x4
     // 2048x2048 = 0x9
-    //if (mapEntry.HasMember("signature"))
-    //    mtlHdr->UnknownSignature = mapEntry["signature"].GetInt();
+
+    // Game ignores this field when parsing, retail rpaks also have this as 0. But In-Game its being set to the number of textures with streamed mip levels.
+    if (mapEntry.HasMember("streamedtexturecount"))
+        mtlHdr->StreamableTextureCount = mapEntry["streamedtexturecount"].GetInt();
 
     if (mapEntry.HasMember("width")) // Set material width.
         mtlHdr->Width = mapEntry["width"].GetInt();
@@ -49,8 +52,8 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     if (mapEntry.HasMember("height")) // Set material width.
         mtlHdr->Height = mapEntry["height"].GetInt();
 
-    //if (mapEntry.HasMember("flags")) // Set flags properly. Responsible for texture stretching, tiling etc.
-    //    mtlHdr->ImageFlags = mapEntry["flags"].GetUint();
+    if (mapEntry.HasMember("imageflags")) // Set flags properly. Responsible for texture stretching, tiling etc.
+        mtlHdr->ImageFlags = mapEntry["imageflags"].GetUint();
 
     if (mapEntry.HasMember("visibilityflags")) {
 
@@ -64,7 +67,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         }
         else if (visibility == "transparent") {
 
-            // this will not work properly unless some flags are added in Flags2
+            // this will not work properly unless some flags are set in Flags2
             visFlag = 0x0007;
 
         }
@@ -87,19 +90,19 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
         }
 
-        mtlHdr->unknownSection[0].VisibilityFlags = visFlag;
-        mtlHdr->unknownSection[1].VisibilityFlags = visFlag;
+        mtlHdr->UnkSections[0].VisibilityFlags = visFlag;
+        mtlHdr->UnkSections[1].VisibilityFlags = visFlag;
 
     }
 
     if (mapEntry.HasMember("faceflags")) {
-        mtlHdr->unknownSection[0].FaceDrawingFlags = mapEntry["faceflags"].GetInt();
-        mtlHdr->unknownSection[1].FaceDrawingFlags = mapEntry["faceflags"].GetInt();
+        mtlHdr->UnkSections[0].FaceDrawingFlags = mapEntry["faceflags"].GetInt();
+        mtlHdr->UnkSections[1].FaceDrawingFlags = mapEntry["faceflags"].GetInt();
         Log("Using faceflags, only touch this if you know what you're doing! \n");
     }
     else {
-        mtlHdr->unknownSection[0].FaceDrawingFlags = 0x0006;
-        mtlHdr->unknownSection[1].FaceDrawingFlags = 0x0006;
+        mtlHdr->UnkSections[0].FaceDrawingFlags = 0x0006;
+        mtlHdr->UnkSections[1].FaceDrawingFlags = 0x0006;
     }
 
     std::string surface = "default";
@@ -289,9 +292,9 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         mtlHdr->GUIDRefs[1] = 0x0000000000000000;
         mtlHdr->GUIDRefs[2] = 0x0000000000000000;
 
-        mtlHdr->Flags = 0x00050300;
+        mtlHdr->ImageFlags = 0x050300;
 
-        mtlHdr->unk6 = 0xFBA63181;
+        mtlHdr->something2 = 0xFBA63181;
 
     }
     else if (type == "wld")
@@ -358,7 +361,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         //mtlHdr->unknownSection[0].UnkRenderDoF = 0xF0138004;
         //mtlHdr->unknownSection[0].UnkRenderUnknown = 0x00138004;
 
-        mtlHdr->unknownSection[0].UnkRenderFlags = 0x00000005;
+        mtlHdr->UnkSections[0].UnkRenderFlags = 0x00000005;
         //mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[0].FaceDrawingFlags = 0x0006;
 
@@ -367,13 +370,13 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         //mtlHdr->unknownSection[1].UnkRenderDoF = 0xF0138004;
         //mtlHdr->unknownSection[1].UnkRenderUnknown = 0x00138004;
 
-        mtlHdr->unknownSection[1].UnkRenderFlags = 0x00000005;
+        mtlHdr->UnkSections[1].UnkRenderFlags = 0x00000005;
         //mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[1].FaceDrawingFlags = 0x0006;
 
-        mtlHdr->Flags = 0x001D0300;
+        mtlHdr->ImageFlags = 0x1D0300;
 
-        mtlHdr->unk6 = 0x40D33E8F;
+        mtlHdr->something2 = 0x40D33E8F;
 
 
     }
@@ -454,27 +457,27 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         RePak::AddFileRelation(assetEntries->size(), 3);
         assetUsesCount += 3;
 
-        mtlHdr->unknownSection[0].UnkRenderLighting = 0xF0138004;
-        mtlHdr->unknownSection[0].UnkRenderAliasing = 0xF0138004;
-        mtlHdr->unknownSection[0].UnkRenderDoF = 0xF0138004;
-        mtlHdr->unknownSection[0].UnkRenderUnknown = 0x00138004;
+        mtlHdr->UnkSections[0].UnkRenderLighting = 0xF0138004;
+        mtlHdr->UnkSections[0].UnkRenderAliasing = 0xF0138004;
+        mtlHdr->UnkSections[0].UnkRenderDoF = 0xF0138004;
+        mtlHdr->UnkSections[0].UnkRenderUnknown = 0x00138004;
 
-        mtlHdr->unknownSection[0].UnkRenderFlags = 0x00000004;
+        mtlHdr->UnkSections[0].UnkRenderFlags = 0x00000004;
         //mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[0].FaceDrawingFlags = 0x0006;
 
-        mtlHdr->unknownSection[1].UnkRenderLighting = 0xF0138004;
-        mtlHdr->unknownSection[1].UnkRenderAliasing = 0xF0138004;
-        mtlHdr->unknownSection[1].UnkRenderDoF = 0xF0138004;
-        mtlHdr->unknownSection[1].UnkRenderUnknown = 0x00138004;
+        mtlHdr->UnkSections[1].UnkRenderLighting = 0xF0138004;
+        mtlHdr->UnkSections[1].UnkRenderAliasing = 0xF0138004;
+        mtlHdr->UnkSections[1].UnkRenderDoF = 0xF0138004;
+        mtlHdr->UnkSections[1].UnkRenderUnknown = 0x00138004;
 
-        mtlHdr->unknownSection[1].UnkRenderFlags = 0x00000004;
+        mtlHdr->UnkSections[1].UnkRenderFlags = 0x00000004;
         //mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[1].FaceDrawingFlags = 0x0006;
 
-        mtlHdr->Flags = 0x001D0300;
+        mtlHdr->ImageFlags = 0x1D0300;
 
-        mtlHdr->unk6 = 0x40D33E8F;
+        mtlHdr->something2 = 0x40D33E8F;
 
     }
     else if (type == "rgd")
@@ -567,27 +570,27 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
         RePak::AddFileRelation(assetEntries->size(), 3);
         assetUsesCount += 3;
 
-        mtlHdr->unknownSection[0].UnkRenderLighting = 0xF0138004;
-        mtlHdr->unknownSection[0].UnkRenderAliasing = 0xF0138004;
-        mtlHdr->unknownSection[0].UnkRenderDoF = 0xF0138004;
-        mtlHdr->unknownSection[0].UnkRenderUnknown = 0x00138004;
+        mtlHdr->UnkSections[0].UnkRenderLighting = 0xF0138004;
+        mtlHdr->UnkSections[0].UnkRenderAliasing = 0xF0138004;
+        mtlHdr->UnkSections[0].UnkRenderDoF = 0xF0138004;
+        mtlHdr->UnkSections[0].UnkRenderUnknown = 0x00138004;
 
-        mtlHdr->unknownSection[0].UnkRenderFlags = 0x00000004;
+        mtlHdr->UnkSections[0].UnkRenderFlags = 0x00000004;
         //mtlHdr->unknownSection[0].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[0].FaceDrawingFlags = 0x0006;
 
-        mtlHdr->unknownSection[1].UnkRenderLighting = 0xF0138004;
-        mtlHdr->unknownSection[1].UnkRenderAliasing = 0xF0138004;
-        mtlHdr->unknownSection[1].UnkRenderDoF = 0xF0138004;
-        mtlHdr->unknownSection[1].UnkRenderUnknown = 0x00138004;
+        mtlHdr->UnkSections[1].UnkRenderLighting = 0xF0138004;
+        mtlHdr->UnkSections[1].UnkRenderAliasing = 0xF0138004;
+        mtlHdr->UnkSections[1].UnkRenderDoF = 0xF0138004;
+        mtlHdr->UnkSections[1].UnkRenderUnknown = 0x00138004;
 
-        mtlHdr->unknownSection[1].UnkRenderFlags = 0x00000004;
+        mtlHdr->UnkSections[1].UnkRenderFlags = 0x00000004;
         //mtlHdr->unknownSection[1].VisibilityFlags = 0x0017;
         //mtlHdr->unknownSection[1].FaceDrawingFlags = 0x0006;
 
-        mtlHdr->Flags = 0x001D0300;
+        mtlHdr->ImageFlags = 0x1D0300;
 
-        mtlHdr->unk6 = 0x40D33E8F;
+        mtlHdr->something2 = 0x40D33E8F;
 
     }
 
@@ -747,6 +750,7 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     asset.m_nVersion = version;
 
     asset.m_nPageEnd = cpuseginfo.index + 1;
+    // this isn't even fully true in some apex materials.
     //asset.unk1 = bColpass ? 7 : 8; // what
     // unk1 appears to be maxusecount, although seemingly nothing is affected by changing it unless you exceed 18.
     // In every TF|2 material asset entry I've looked at it's always UsesCount + 1.
