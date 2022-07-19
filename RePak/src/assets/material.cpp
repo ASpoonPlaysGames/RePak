@@ -392,6 +392,13 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
                 mtlHdr->Flags2 = 0x56040020;
 
             }
+            else if (subtype == "nose_art") {
+
+                mtlHdr->ShaderSetGUID = 0x3DAD868FA7485BDD;
+
+                mtlHdr->Flags2 = 0x56000023;
+
+            }
             else {
 
                 Warning("Invalid type used! Defaulting to subtype 'viewmodel'... \n");
@@ -403,30 +410,52 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
             }
 
-            mtlHdr->GUIDRefs[0] = 0x39C739E9928E555C;
-            mtlHdr->GUIDRefs[1] = 0x67D89B36EDCDDF6E;
-            mtlHdr->GUIDRefs[2] = 0x43A9D8D429698B9F;
+            if (subtype == "nose_art") {
 
-            RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs));
-            RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 8);
-            RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 16);
+                for (int i = 0; i < 2; ++i)
+                {
+                    mtlHdr->UnkSections[i].UnkRenderLighting = 0xF0138286;
+                    mtlHdr->UnkSections[i].UnkRenderAliasing = 0xF0138286;
+                    mtlHdr->UnkSections[i].UnkRenderDoF = 0xF0008286;
+                    mtlHdr->UnkSections[i].UnkRenderUnknown = 0x00138286;
 
-            RePak::AddFileRelation(assetEntries->size(), 3);
-            assetUsesCount += 3;
+                    mtlHdr->UnkSections[i].UnkRenderFlags = 0x00000005;
 
-            mtlHdr->UnkSections[0].UnkRenderLighting = 0xF0138004;
-            mtlHdr->UnkSections[0].UnkRenderAliasing = 0xF0138004;
-            mtlHdr->UnkSections[0].UnkRenderDoF = 0xF0138004;
-            mtlHdr->UnkSections[0].UnkRenderUnknown = 0x00138004;
+                }
 
-            mtlHdr->UnkSections[0].UnkRenderFlags = 0x00000004;
+                mtlHdr->GUIDRefs[0] = 0x0000000000000000;
+                mtlHdr->GUIDRefs[1] = 0x0000000000000000;
+                mtlHdr->GUIDRefs[2] = 0x0000000000000000;
 
-            mtlHdr->UnkSections[1].UnkRenderLighting = 0xF0138004;
-            mtlHdr->UnkSections[1].UnkRenderAliasing = 0xF0138004;
-            mtlHdr->UnkSections[1].UnkRenderDoF = 0xF0138004;
-            mtlHdr->UnkSections[1].UnkRenderUnknown = 0x00138004;
+            }
+            else {
 
-            mtlHdr->UnkSections[1].UnkRenderFlags = 0x00000004;
+                for (int i = 0; i < 2; ++i)
+                {
+
+
+
+                    mtlHdr->UnkSections[i].UnkRenderLighting = 0xF0138004;
+                    mtlHdr->UnkSections[i].UnkRenderAliasing = 0xF0138004;
+                    mtlHdr->UnkSections[i].UnkRenderDoF = 0xF0138004;
+                    mtlHdr->UnkSections[i].UnkRenderUnknown = 0x00138004;
+
+                    mtlHdr->UnkSections[i].UnkRenderFlags = 0x00000004;
+
+                }
+
+                mtlHdr->GUIDRefs[0] = 0x39C739E9928E555C;
+                mtlHdr->GUIDRefs[1] = 0x67D89B36EDCDDF6E;
+                mtlHdr->GUIDRefs[2] = 0x43A9D8D429698B9F;
+
+                RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs));
+                RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 8);
+                RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 16);
+
+                RePak::AddFileRelation(assetEntries->size(), 3);
+                assetUsesCount += 3;
+
+            }
 
             mtlHdr->ImageFlags = 0x1D0300;
 
@@ -494,6 +523,13 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
                 mtlHdr->Flags2 = 0x56040020;
 
             }
+            else if (subtype == "nose_art") {
+
+                mtlHdr->ShaderSetGUID = 0x6CBEA6FE48218FAA;
+
+                mtlHdr->Flags2 = 0x56000023;
+
+            }
             else if (subtype == "test1") {
 
                 mtlHdr->ShaderSetGUID = 0x942791681799941D;
@@ -512,30 +548,53 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
 
             }
 
-            mtlHdr->GUIDRefs[0] = 0xA4728358C3B043CA;
-            mtlHdr->GUIDRefs[1] = 0x370BABA9D9147F3D;
-            mtlHdr->GUIDRefs[2] = 0x12DCE94708487F8C;
+            if (subtype == "nose_art") {
 
-            RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs));
-            RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 8);
-            RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 16);
+                for (int i = 0; i < 2; ++i)
+                {
+                    mtlHdr->UnkSections[i].UnkRenderLighting = 0xF0138286;
+                    mtlHdr->UnkSections[i].UnkRenderAliasing = 0xF0138286;
+                    mtlHdr->UnkSections[i].UnkRenderDoF = 0xF0008286;
+                    mtlHdr->UnkSections[i].UnkRenderUnknown = 0x00138286;
 
-            RePak::AddFileRelation(assetEntries->size(), 3);
-            assetUsesCount += 3;
+                    mtlHdr->UnkSections[i].UnkRenderFlags = 0x00000005;
 
-            mtlHdr->UnkSections[0].UnkRenderLighting = 0xF0138004;
-            mtlHdr->UnkSections[0].UnkRenderAliasing = 0xF0138004;
-            mtlHdr->UnkSections[0].UnkRenderDoF = 0xF0138004;
-            mtlHdr->UnkSections[0].UnkRenderUnknown = 0x00138004;
+                }
 
-            mtlHdr->UnkSections[0].UnkRenderFlags = 0x00000004;
+                mtlHdr->GUIDRefs[0] = 0x0000000000000000;
+                mtlHdr->GUIDRefs[1] = 0x0000000000000000;
+                mtlHdr->GUIDRefs[2] = 0x0000000000000000;
 
-            mtlHdr->UnkSections[1].UnkRenderLighting = 0xF0138004;
-            mtlHdr->UnkSections[1].UnkRenderAliasing = 0xF0138004;
-            mtlHdr->UnkSections[1].UnkRenderDoF = 0xF0138004;
-            mtlHdr->UnkSections[1].UnkRenderUnknown = 0x00138004;
+            }
+            else {
 
-            mtlHdr->UnkSections[1].UnkRenderFlags = 0x00000004;
+                for (int i = 0; i < 2; ++i)
+                {
+
+
+
+                    mtlHdr->UnkSections[i].UnkRenderLighting = 0xF0138004;
+                    mtlHdr->UnkSections[i].UnkRenderAliasing = 0xF0138004;
+                    mtlHdr->UnkSections[i].UnkRenderDoF = 0xF0138004;
+                    mtlHdr->UnkSections[i].UnkRenderUnknown = 0x00138004;
+
+                    mtlHdr->UnkSections[i].UnkRenderFlags = 0x00000004;
+
+                }
+
+                mtlHdr->GUIDRefs[0] = 0xA4728358C3B043CA;
+                mtlHdr->GUIDRefs[1] = 0x370BABA9D9147F3D;
+                mtlHdr->GUIDRefs[2] = 0x12DCE94708487F8C;
+
+                RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs));
+                RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 8);
+                RePak::RegisterGuidDescriptor(subhdrinfo.index, offsetof(MaterialHeaderV12, GUIDRefs) + 16);
+
+                RePak::AddFileRelation(assetEntries->size(), 3);
+                assetUsesCount += 3;
+
+            }
+            
 
             mtlHdr->ImageFlags = 0x1D0300;
 
@@ -715,39 +774,75 @@ void Assets::AddMaterialAsset(std::vector<RPakAssetEntryV7>* assetEntries, const
     // copy the rest of the data after the header
     MaterialCPUDataV12 cpudata{};
 
-    bool bSelfIllum = mapEntry.HasMember("selfIllum") && mapEntry["selfIllum"].GetBool();
-    std::float_t selfillumintensity = 1.0; //this should be swapped over to array of floats named "selfillumtint".
-    //std::float_t selfillumtint[4] = { };
+    std::float_t selfillumtint[4] = { 0.0, 0.0, 0.0, 0.0 };
 
-    if (mapEntry.HasMember("selfillumintensity"))
-        selfillumintensity = mapEntry["selfillumintensity"].GetFloat();
+    if (mapEntry.HasMember("selfillumtint")) {
 
-    // these should also be changed into an array of floats for the texture transform matrix, something like "detailtexturetransform" should work..
-    if (mapEntry.HasMember("detail_scale_x"))
-        cpudata.DetailTransform->TextureScaleX = mapEntry["detail_scale_x"].GetFloat();
+        int tintId = 0;
+        for (auto& sitf : mapEntry["selfillumtint"].GetArray())
+        {
 
-    if (mapEntry.HasMember("detail_scale_y"))
-        cpudata.DetailTransform->TextureScaleY = mapEntry["detail_scale_y"].GetFloat();
+            selfillumtint[tintId] = sitf.GetFloat();
 
-    if (bSelfIllum && mapEntry.HasMember("selfillumintensity"))
-    {
-        cpudata.SelfillumTint->r = selfillumintensity;
-        cpudata.SelfillumTint->g = selfillumintensity;
-        cpudata.SelfillumTint->b = selfillumintensity;
-        cpudata.SelfillumTint->a = 0.0; // should change once array is implemented.
+            tintId++;
+
+        }
+
     }
-    else
-    {
-        cpudata.SelfillumTint->r = 0.0;
-        cpudata.SelfillumTint->g = 0.0;
-        cpudata.SelfillumTint->b = 0.0;
-        cpudata.SelfillumTint->a = 0.0;
+    else {
+
+        Log("No selfillumtint specified, assuming there is no emissive texture! \n");
+
     }
 
-    cpudata.MainTint->r = 1.0;
-    cpudata.MainTint->g = 1.0;
-    cpudata.MainTint->b = 1.0;
-    cpudata.MainTint->a = 1.0;
+    cpudata.SelfillumTint->r = selfillumtint[0];
+    cpudata.SelfillumTint->g = selfillumtint[1];
+    cpudata.SelfillumTint->b = selfillumtint[2];
+    cpudata.SelfillumTint->a = selfillumtint[3];
+
+    std::float_t color2[4] = { 1.0, 1.0, 1.0, 1.0 };
+
+    if (mapEntry.HasMember("color2")) {
+
+        int color2Id = 0;
+        for (auto& c2f : mapEntry["color2"].GetArray())
+        {
+
+            color2[color2Id] = c2f.GetFloat();
+
+            color2Id++;
+
+        }
+
+    }
+
+    cpudata.MainTint->r = color2[0];
+    cpudata.MainTint->g = color2[1];
+    cpudata.MainTint->b = color2[2];
+    cpudata.MainTint->a = color2[3];
+
+    std::float_t DetailTransformMatrix[6] = { 1.0, 0, -0, 1.0, 0.0, 0.0 };
+
+    if (mapEntry.HasMember("detailtransform")) {
+
+        int detailId = 0;
+        for (auto& dtm : mapEntry["detailtransform"].GetArray())
+        {
+
+            DetailTransformMatrix[detailId] = dtm.GetFloat();
+
+            detailId++;
+
+        }
+
+    }
+
+    cpudata.DetailTransform->TextureScaleX = DetailTransformMatrix[0];
+    cpudata.DetailTransform->TextureUnk = DetailTransformMatrix[1];
+    cpudata.DetailTransform->TextureRotation = DetailTransformMatrix[2];
+    cpudata.DetailTransform->TextureScaleY = DetailTransformMatrix[3];
+    cpudata.DetailTransform->TextureTranslateX = DetailTransformMatrix[4];
+    cpudata.DetailTransform->TextureTranslateY = DetailTransformMatrix[5];
 
     memcpy_s(cpuData + sizeof(MaterialCPUHeader), cpuDataSize, &cpudata, cpuDataSize);
     //////////////////////////////////////////
