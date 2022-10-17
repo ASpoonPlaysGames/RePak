@@ -3,18 +3,14 @@
 #include "Assets.h"
 #include "dxutils.h"
 
-void Assets::AddTextureAsset_v8(RPakFileBase* pak, std::vector<RPakAssetEntry>* assetEntries, const char* assetPath, rapidjson::Value& mapEntry)
+void Assets::AddTextureAsset_v8(CPakFile* pak, std::vector<RPakAssetEntry>* assetEntries, const char* assetPath, rapidjson::Value& mapEntry)
 {
     Log("Adding txtr asset '%s'\n", assetPath);
 
     std::string filePath = g_sAssetsDir + assetPath + ".dds";
 
     if (!FILE_EXISTS(filePath))
-    {
-        // this is a fatal error because if this asset is a dependency for another asset and we just ignore it
-        // we will crash later when trying to reference it
         Error("Failed to find texture source file %s. Exiting...\n", filePath.c_str());
-    }
 
     TextureHeader* hdr = new TextureHeader();
 
@@ -23,7 +19,7 @@ void Assets::AddTextureAsset_v8(RPakFileBase* pak, std::vector<RPakAssetEntry>* 
 
     uint64_t nInputFileSize = Utils::GetFileSize(filePath);
 
-    std::string sAssetName = assetPath; // todo: this needs to be changed to the actual name
+    std::string sAssetName = assetPath;
 
     uint32_t nLargestMipSize = 0;
     uint32_t nStreamedMipSize = 0;
@@ -58,7 +54,7 @@ void Assets::AddTextureAsset_v8(RPakFileBase* pak, std::vector<RPakAssetEntry>* 
         }
 
         uint32_t nTotalSize = 0;
-        for (int ml = 0; ml < ddsh.dwMipMapCount; ml++)
+        for (unsigned int ml = 0; ml < ddsh.dwMipMapCount; ml++)
         {
             uint32_t nCurrentMipSize = (ddsh.dwPitchOrLinearSize / std::pow(4, ml));
 
@@ -71,12 +67,12 @@ void Assets::AddTextureAsset_v8(RPakFileBase* pak, std::vector<RPakAssetEntry>* 
         }
 
         hdr->dataSize = nTotalSize;
-        hdr->width = ddsh.dwWidth;
-        hdr->height = ddsh.dwHeight;
+        hdr->width = (uint16_t)ddsh.dwWidth;
+        hdr->height = (uint16_t)ddsh.dwHeight;
 
         Log("-> dimensions: %ix%i\n", ddsh.dwWidth, ddsh.dwHeight);
 
-        hdr->mipLevels = (ddsh.dwMipMapCount - nStreamedMipCount);
+        hdr->mipLevels = (uint8_t)(ddsh.dwMipMapCount - nStreamedMipCount);
         hdr->streamedMipLevels = nStreamedMipCount;
 
         Log("-> total mipmaps permanent:streamed : %i:%i\n", hdr->mipLevels, hdr->streamedMipLevels);
@@ -187,10 +183,7 @@ void Assets::AddTextureAsset_v8(RPakFileBase* pak, std::vector<RPakAssetEntry>* 
         sprintf_s(namebuf, sAssetName.length() + 1, "%s", sAssetName.c_str());
         nameseginfo = pak->CreateNewSegment(sAssetName.size() + 1, SF_DEV | SF_CPU, 1);
     }
-    else
-    {
-        delete[] namebuf;
-    }
+    else delete[] namebuf;
 
     // woo more segments
     // cpu data
@@ -207,7 +200,7 @@ void Assets::AddTextureAsset_v8(RPakFileBase* pak, std::vector<RPakAssetEntry>* 
 
     for (int ml = 0; ml < (hdr->mipLevels + hdr->streamedMipLevels); ml++)
     {
-        uint32_t nCurrentMipSize = (nLargestMipSize / std::pow(4, ml));
+        uint32_t nCurrentMipSize = (unsigned int)(nLargestMipSize / std::pow(4, ml));
         uint32_t mipSizeDDS = 0;
         uint32_t mipSizeRpak = 0;
 
@@ -259,29 +252,23 @@ void Assets::AddTextureAsset_v8(RPakFileBase* pak, std::vector<RPakAssetEntry>* 
 
     if (bStreamable)
     {
-        std::string sStarpakPath = pak->primaryStarpakPath;
+        std::string starpakPath = pak->primaryStarpakPath;
 
         // check per texture just in case for whatever reason you want stuff in different starpaks (if it ever gets fixed).
         if (mapEntry.HasMember("starpakPath"))
-        {
-            sStarpakPath = mapEntry["starpakPath"].GetString();
-        }
-        else
-        {
-            sStarpakPath = pak->primaryStarpakPath;
-        }
-        
-        pak->AddStarpakReference(sStarpakPath);
+            starpakPath = mapEntry["starpakPath"].GetString();
 
-        if (sStarpakPath.length() == 0)
+        if (starpakPath.length() == 0)
             Error("attempted to add asset '%s' as a streaming asset, but no starpak files were available.\nto fix: add 'starpakPath' as an rpak-wide variable\nor: add 'starpakPath' as an asset specific variable\n", assetPath);
+       
+        pak->AddStarpakReference(starpakPath);
 
         SRPkDataEntry de{ 0, nStreamedMipSize, (uint8_t*)streamedbuf };
         de = pak->AddStarpakDataEntry(de);
         starpakOffset = de.m_nOffset;
     }
 
-    asset.InitAsset(RTech::StringToGuid((sAssetName + ".rpak").c_str()), subhdrinfo.index, 0, subhdrinfo.size, dataseginfo.index, 0, starpakOffset, -1, (std::uint32_t)AssetType::TEXTURE);
+    asset.InitAsset(RTech::StringToGuid((sAssetName + ".rpak").c_str()), subhdrinfo.index, 0, subhdrinfo.size, dataseginfo.index, 0, starpakOffset, -1, (std::uint32_t)AssetType::TXTR);
     asset.version = TXTR_VERSION;
 
     asset.pageEnd = dataseginfo.index + 1; // number of the highest page that the asset references pageidx + 1

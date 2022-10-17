@@ -2,7 +2,7 @@
 #include "Assets.h"
 #include <dxutils.h>
 
-void Assets::AddUIImageAsset_v10(RPakFileBase* pak, std::vector<RPakAssetEntry>* assetEntries, const char* assetPath, rapidjson::Value& mapEntry)
+void Assets::AddUIImageAsset_v10(CPakFile* pak, std::vector<RPakAssetEntry>* assetEntries, const char* assetPath, rapidjson::Value& mapEntry)
 {
     Log("Adding uimg asset '%s'\n", assetPath);
 
@@ -77,6 +77,9 @@ void Assets::AddUIImageAsset_v10(RPakFileBase* pak, std::vector<RPakAssetEntry>*
     UIImageHeader* pHdr = new UIImageHeader();
     pHdr->width = ddsh.dwWidth;
     pHdr->height = ddsh.dwHeight;
+
+    pHdr->widthRatio = 1 / pHdr->width;
+    pHdr->heightRatio = 1 / pHdr->height;
 
     // legion uses this to get the texture count, so its probably set correctly
     pHdr->textureCount = nTexturesCount;

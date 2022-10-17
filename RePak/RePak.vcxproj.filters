@@ -42,9 +42,6 @@
     <ClCompile Include="src\RePak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\rmem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\rtech.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -71,6 +68,9 @@
     </ClCompile>
     <ClCompile Include="src\Assets.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\assets\animation.cpp">
+      <Filter>Source Files\assets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
