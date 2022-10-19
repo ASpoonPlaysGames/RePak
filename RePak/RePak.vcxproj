@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="keyvalues.cpp" />
     <ClCompile Include="src\Assets.cpp" />
     <ClCompile Include="src\assets\animation.cpp" />
     <ClCompile Include="src\assets\datatable.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="include\rpak.h" />
     <ClInclude Include="include\rtech.h" />
     <ClInclude Include="include\Utils.h" />
+    <ClInclude Include="keyvalues.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

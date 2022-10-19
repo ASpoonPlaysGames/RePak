@@ -72,6 +72,9 @@
     <ClCompile Include="src\assets\animation.cpp">
       <Filter>Source Files\assets</Filter>
     </ClCompile>
+    <ClCompile Include="keyvalues.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\rapidjson\allocators.h">
@@ -216,6 +219,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\dxutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="keyvalues.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
