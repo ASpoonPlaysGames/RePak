@@ -3,13 +3,10 @@
 
 class CKeyValues
 {
-	// requirements:
-	// load from file
-	// load from string
-	// get string value from key
-	// check if key exists
-	// 
-	// nice to have:
+	// THIS PARSER DOESNT SUPPORT:
+	// - Multiple values for a key
+	// - Multiple instances of a key
+	// With that being said, it should be fine for a material?
 
 public:
 	/// <summary>
@@ -57,6 +54,8 @@ public:
 	/// <param name="key">The key to get the value of</param>
 	/// <returns>The KeyValues found at the key</returns>
 	CKeyValues* GetKeyValues(std::string key);
+
+	~CKeyValues();
 private:
 	
 	/// <summary>

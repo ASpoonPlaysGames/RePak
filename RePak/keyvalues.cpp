@@ -43,7 +43,7 @@ void CKeyValues::ParseStream(std::ifstream& stream)
 		switch (currentStatus)
 		{
 		case ParseStatus::InComment:
-			// if we are in a comment, do nothing until the end of a line
+			// if we are in a comment, do nothing until the end of a line, i dont think /**/ is supported in keyvalues
 			if (curChar == '\n')
 			{
 				// reset the currentStatus
@@ -54,6 +54,7 @@ void CKeyValues::ParseStream(std::ifstream& stream)
 			[[fallthrough]];
 		case ParseStatus::InString:
 			// if we are in a string, add the char to the current string (unless the char signifies the end of the string)
+			// if we are in a "value" (string but no "), look for whitespace
 			if ((curChar == '"' && currentStatus == ParseStatus::InString) || (std::isspace(curChar) && currentStatus == ParseStatus::InValue))
 			{
 				// reset the currentStatus
@@ -80,9 +81,11 @@ void CKeyValues::ParseStream(std::ifstream& stream)
 			}
 			break;
 		case ParseStatus::None:
+			// if we arent in anything, just ignore whitespace
 			if (std::isspace(curChar))
 			{
-				continue;
+				// break dont continue here because we should still update the prevChar
+				break;
 			}
 			switch (curChar)
 			{
@@ -97,6 +100,7 @@ void CKeyValues::ParseStream(std::ifstream& stream)
 				// make a new CKeyValues and parse it
 				value = new CKeyValues();
 				value->ParseStream(stream);
+				// add the result to the nestedKeyValues map, prevStr is the key here
 				this->nestedKeyValues.insert(std::make_pair(prevStr, value));
 				break;
 			case '}':
@@ -109,6 +113,7 @@ void CKeyValues::ParseStream(std::ifstream& stream)
 			default:
 				// add char to string early because this char is needed (its not ")
 				curStr += curChar;
+				// we just assume that this is fine and valid i dont care
 				currentStatus = ParseStatus::InValue;
 				break;
 			}
@@ -139,4 +144,17 @@ std::string CKeyValues::GetValue(std::string key)
 CKeyValues* CKeyValues::GetKeyValues(std::string key)
 {
 	return this->nestedKeyValues.find(key)->second;
+}
+
+/// <summary>
+/// Destructor, recursively deletes all nested CKeyValues objects
+/// </summary>
+CKeyValues::~CKeyValues()
+{
+	// iterate through nested keyvalues
+	for (auto& it : this->nestedKeyValues)
+	{
+		// delete the CKeyValues object
+		delete it.second;
+	}
 }
