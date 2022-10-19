@@ -26,8 +26,8 @@ struct Vector3
 // when loaded, these usually get converted to a real pointer
 struct RPakPtr
 {
-	uint32_t index = 0;
-	uint32_t offset = 0;
+	uint32_t m_nIndex = 0;
+	uint32_t m_nOffset = 0;
 };
 
 // generic header struct for both apex and titanfall 2

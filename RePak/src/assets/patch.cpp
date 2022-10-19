@@ -48,7 +48,7 @@ void Assets::AddPatchAsset(CPakFile* pak, std::vector<RPakAssetEntry>* assetEntr
         // write the ptr to the file name into the buffer
         dataBuf.write<RPakPtr>({ dataseginfo.index, fileNameOffset }, sizeof(RPakPtr) * i);
         // write the patch number for this entry into the buffer
-        dataBuf.write<uint8_t>(it.PatchNum, pHdr->pPakPatchNums.offset + i);
+        dataBuf.write<uint8_t>(it.PatchNum, pHdr->pPakPatchNums.m_nOffset + i);
 
         snprintf(pDataBuf + fileNameOffset, it.FileName.length() + 1, "%s", it.FileName.c_str());
 

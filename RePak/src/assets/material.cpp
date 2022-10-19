@@ -636,11 +636,11 @@ void Assets::AddMaterialAsset_v15(CPakFile* pak, std::vector<RPakAssetEntry>* as
 
     // ===============================
     // fill out the rest of the header
-    mtlHdr->m_pszName.index = dataseginfo.index;
-    mtlHdr->m_pszName.offset = 0;
+    mtlHdr->m_pszName.m_nIndex = dataseginfo.index;
+    mtlHdr->m_pszName.m_nOffset = 0;
 
-    mtlHdr->m_pszSurfaceProp.index = dataseginfo.index;
-    mtlHdr->m_pszSurfaceProp.offset = (sAssetPath.length() + 1) + assetPathAlignment + (textureRefSize * 2);
+    mtlHdr->m_pszSurfaceProp.m_nIndex = dataseginfo.index;
+    mtlHdr->m_pszSurfaceProp.m_nOffset = (sAssetPath.length() + 1) + assetPathAlignment + (textureRefSize * 2);
 
     pak->AddPointer(subhdrinfo.index, offsetof(MaterialHeaderV15, m_pszName));
     pak->AddPointer(subhdrinfo.index, offsetof(MaterialHeaderV15, m_pszSurfaceProp));
@@ -735,11 +735,11 @@ void Assets::AddMaterialAsset_v15(CPakFile* pak, std::vector<RPakAssetEntry>* as
         }
     }
 
-    mtlHdr->m_pTextureHandles.index = dataseginfo.index;
-    mtlHdr->m_pTextureHandles.offset = guidPageOffset;
+    mtlHdr->m_pTextureHandles.m_nIndex = dataseginfo.index;
+    mtlHdr->m_pTextureHandles.m_nOffset = guidPageOffset;
 
-    mtlHdr->m_pStreamingTextureHandles.index = dataseginfo.index;
-    mtlHdr->m_pStreamingTextureHandles.offset = guidPageOffset + textureRefSize;
+    mtlHdr->m_pStreamingTextureHandles.m_nIndex = dataseginfo.index;
+    mtlHdr->m_pStreamingTextureHandles.m_nOffset = guidPageOffset + textureRefSize;
 
     pak->AddPointer(subhdrinfo.index, offsetof(MaterialHeaderV15, m_pTextureHandles));
     pak->AddPointer(subhdrinfo.index, offsetof(MaterialHeaderV15, m_pStreamingTextureHandles));
