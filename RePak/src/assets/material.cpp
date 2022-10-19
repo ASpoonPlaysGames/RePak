@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Assets.h"
+#include "../../keyvalues.h"
 
 // VERSION 7
 void Assets::AddMaterialAsset_v12(CPakFile* pak, std::vector<RPakAssetEntry>* assetEntries, const char* assetPath, rapidjson::Value& mapEntry)
@@ -11,6 +12,8 @@ void Assets::AddMaterialAsset_v12(CPakFile* pak, std::vector<RPakAssetEntry>* as
 
     MaterialHeaderV12* mtlHdr = new MaterialHeaderV12();
     std::string AssetPath = std::string(assetPath);
+    CKeyValues* KeyValuesFile = new CKeyValues();
+    KeyValuesFile->ParseFile(g_sAssetsDir + "material/" + assetPath + ".rmt");
 
     // this should be replaced with getting the resolution from the color texture
     if (mapEntry.HasMember("width")) // Set material width.

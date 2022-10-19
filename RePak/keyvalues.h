@@ -9,11 +9,6 @@ class CKeyValues
 	// With that being said, it should be fine for a material?
 
 public:
-	/// <summary>
-	/// Parses KeyValues from a specified path
-	/// </summary>
-	/// <param name="filePath">The path to the file to be parsed</param>
-	inline void ParseFile(std::filesystem::path filePath) { ParseFile(filePath.string()); }
 
 	/// <summary>
 	/// Parses KeyValues from a specified path
