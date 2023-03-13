@@ -1023,6 +1023,35 @@ struct mstudioautolayer_t
 	float end;	 // end of all influence
 };
 
+/////////
+// RUI //
+/////////
+
+struct RuiHeader
+{
+	RPakPtr name;
+	RPakPtr values;
+	RPakPtr transformData;
+	float elementWidth;
+	float elementHeight;
+	float elementWidthRatio;
+	float elementHeightRatio;
+	RPakPtr argNames;
+	RPakPtr argClusters;
+	RPakPtr args;
+	short argCount; // number of slots for arguments. not all are used
+	short unk10Count; // number of "headers" unk10 leads to, if 0 none present.
+	uint16_t structSize;
+	uint16_t valueSize; // size of values in bytes
+	uint16_t unk8Count;
+	uint16_t unk6;
+	uint16_t unk7;
+	uint16_t argClusterCount;
+	RPakPtr unk8;
+	RPakPtr unk9;
+	RPakPtr unk10; // leads to "headers" for data, the data being vectors
+};
+
 #pragma pack(pop)
 
 // internal data structure for storing patch_master entries before being written

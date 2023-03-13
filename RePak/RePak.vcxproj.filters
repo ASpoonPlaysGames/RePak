@@ -60,7 +60,7 @@
     <ClCompile Include="src\assets\material.cpp">
       <Filter>Source Files\assets</Filter>
     </ClCompile>
-    <ClCompile Include="src\assets\rui.cpp">
+    <ClCompile Include="src\assets\uimg.cpp">
       <Filter>Source Files\assets</Filter>
     </ClCompile>
     <ClCompile Include="src\assets\patch.cpp">
@@ -70,6 +70,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\assets\animation.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\assets\rui.cpp">
       <Filter>Source Files\assets</Filter>
     </ClCompile>
   </ItemGroup>
