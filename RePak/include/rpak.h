@@ -234,6 +234,7 @@ enum class AssetType : uint32_t
 	DTBL = 0x6c627464, // b'dtbl' - datatable
 	MATL = 0x6c74616d, // b'matl' - material
 	ASEQ = 'qesa',	   // b'aseq' - animation sequence
+	UI = 0x00006975,	   // b'ui\0\0' - rui asset
 };
 
 // identifies the data type for each column in a datatable asset
@@ -1050,6 +1051,68 @@ struct RuiHeader
 	RPakPtr unk8;
 	RPakPtr unk9;
 	RPakPtr unk10; // leads to "headers" for data, the data being vectors
+};
+
+enum RuiArgumentType_t : byte
+{
+	TYPE_NONE = 0,
+	TYPE_STRING = 0x1,
+	TYPE_ASSET = 0x2,
+	TYPE_BOOL = 0x3,
+	TYPE_INT = 0x4,
+	TYPE_FLOAT = 0x5,
+	TYPE_FLOAT2 = 0x6,
+	TYPE_FLOAT3 = 0x7,
+	TYPE_COLOR_ALPHA = 0x8,
+	TYPE_GAMETIME = 0x9,
+	TYPE_WALLTIME = 0xA,
+	TYPE_UIHANDLE = 0xB,
+	TYPE_IMAGE = 0xC,
+	TYPE_FONT_FACE = 0xD,
+	TYPE_FONT_HASH = 0xE,
+	TYPE_ARRAY = 0xF,
+};
+
+static std::map<RuiArgumentType_t, size_t> ruiArgSizeFromType =
+{
+	{TYPE_NONE, 0},
+	{TYPE_STRING, 0x8},
+	{TYPE_ASSET, 0x8},
+	{TYPE_BOOL, 0x4},
+	{TYPE_INT, 0x4},
+	{TYPE_FLOAT, 0x4},
+	{TYPE_FLOAT2, 0x8},
+	{TYPE_FLOAT3, 0xC},
+	{TYPE_COLOR_ALPHA, 0x10},
+	{TYPE_GAMETIME, 0x4},
+	{TYPE_WALLTIME, 0x4},
+	{TYPE_UIHANDLE, 0x8},
+	// these dont appear in r2 so cant verify, just guessing
+	{TYPE_IMAGE, 0x8},
+	{TYPE_FONT_FACE, 0x8},
+	{TYPE_FONT_HASH, 0x8},
+	{TYPE_ARRAY, 0x8},
+};
+
+static std::map<std::string, RuiArgumentType_t> ruiArgTypeFromStr =
+{
+	{"none", TYPE_NONE},
+	{"string", TYPE_STRING},
+	{"asset", TYPE_ASSET},
+	{"bool", TYPE_BOOL},
+	{"int", TYPE_INT},
+	{"float", TYPE_FLOAT},
+	{"float2", TYPE_FLOAT2},
+	{"float3", TYPE_FLOAT3},
+	{"color", TYPE_COLOR_ALPHA},
+	{"gametime", TYPE_GAMETIME},
+	{"walltime", TYPE_WALLTIME},
+	{"uihandle", TYPE_UIHANDLE},
+	{"image", TYPE_IMAGE},
+	{"fontface", TYPE_FONT_FACE},
+	{"fonthash", TYPE_FONT_HASH},
+	{"array", TYPE_ARRAY},
+
 };
 
 #pragma pack(pop)
