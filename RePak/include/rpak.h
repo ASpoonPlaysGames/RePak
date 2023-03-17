@@ -1115,6 +1115,28 @@ static std::map<std::string, RuiArgumentType_t> ruiArgTypeFromStr =
 
 };
 
+struct RuiArgCluster
+{
+	short argIndex;
+	short argCount;
+	char byte1;
+	char byte2;
+	short unk_6;
+	short unk_8;
+	short unk_A;
+	char unk_C[4];
+	short unk_10;
+};
+
+struct RuiArg
+{
+	byte type;
+	byte unk1;
+	short valueOffset;
+	short nameOffset;
+	short short_hash;
+};
+
 #pragma pack(pop)
 
 // internal data structure for storing patch_master entries before being written
