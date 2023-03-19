@@ -270,14 +270,42 @@ void Assets::AddRuiAsset(CPakFile* pak, std::vector<RPakAssetEntry>* assetEntrie
     RuiArgCluster* cluster = new RuiArgCluster();
     cluster->argCount = mapEntry["args"].GetArray().Size();
     cluster->argIndex = 0;
+    pHdr->argClusterCount++;
 
     aBuf.write<RuiArgCluster>(*cluster);
 
-    // write the args
+    size_t argNamesSize = 0;
+    // get the arg name sizes to create the buffer
+    for (auto& it : mapEntry["args"].GetArray())
+    {
+        argNamesSize += it["name"].GetStdString().length() + 1;
+    }
+
+    // create the seginfo for the arg names
+    _vseginfo_t argNamesInfo{};
+    // for now, just contains a single arg cluster and all of the args
+    argNamesInfo = pak->CreateNewSegment(argNamesSize, SF_CLIENT | SF_CPU | SF_DEV, 1);
+
+    char* argNamesBuf = new char[argNamesSize] {};
+
+    short curNameOffset = 0;
+    // write the args, this is temp and needs a hash map, etc etc. its annoying
     for (auto& it : mapEntry["args"].GetArray())
     {
         RuiArg* arg = new RuiArg();
         // short hash, fuuuuuuuuuuuuck
+        arg->short_hash = 1; // temp to get arg names to work
+
+        std::string name = it["name"].GetStdString();
+        sprintf_s(argNamesBuf + curNameOffset, name.length() + 1, "%s", name.c_str());
+        arg->nameOffset = curNameOffset;
+        curNameOffset += name.length() + 1;
+
+        arg->valueOffset = valuesOffsets[name];
+        arg->type = ruiArgTypeFromStr[it["type"].GetStdString()];
+
+        aBuf.write<RuiArg>(*arg);
+        pHdr->argCount++;
     }
 
     
@@ -301,10 +329,22 @@ void Assets::AddRuiAsset(CPakFile* pak, std::vector<RPakAssetEntry>* assetEntrie
     pHdr->name = { assetNameInfo.index, 0 };
 
     // register the pointer to the values
-    pak->AddPointer(valuesInfo.index, offsetof(RuiHeader, values));
+    pak->AddPointer(subhdrinfo.index, offsetof(RuiHeader, values));
     // set the pointer to the asset values
     pHdr->values = { valuesInfo.index, 0 };
     
+    // register the pointer to the arg clusters
+    pak->AddPointer(subhdrinfo.index, offsetof(RuiHeader, argClusters));
+    // set the pointer to the arg cluster
+    pHdr->argClusters = { argsInfo.index, 0 };
+    // register the pointer to the args
+    pak->AddPointer(subhdrinfo.index, offsetof(RuiHeader, args));
+    // set the pointer to the args
+    pHdr->args = { argsInfo.index, sizeof(RuiArgCluster) };
+    // register the pointer to the arg names
+    pak->AddPointer(subhdrinfo.index, offsetof(RuiHeader, argNames));
+    // set the pointer to the arg names
+    pHdr->argNames = { argNamesInfo.index, 0 };
 
 
     ////////////////////
@@ -326,6 +366,14 @@ void Assets::AddRuiAsset(CPakFile* pak, std::vector<RPakAssetEntry>* assetEntrie
     // default string values
     RPakRawDataBlock sdb{ stringsInfo.index, stringsInfo.size, (uint8_t*)stringsBuf };
     pak->AddRawDataBlock(sdb);
+
+    // args
+    RPakRawDataBlock adb{ argsInfo.index, argsInfo.size, (uint8_t*)argsBuf };
+    pak->AddRawDataBlock(adb);
+
+    // arg names
+    RPakRawDataBlock argndb{ argNamesInfo.index, argNamesInfo.size, (uint8_t*)argNamesBuf };
+    pak->AddRawDataBlock(argndb);
 
     // create and init the asset entry
     RPakAssetEntry asset;
