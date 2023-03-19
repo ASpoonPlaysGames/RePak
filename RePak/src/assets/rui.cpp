@@ -36,8 +36,8 @@ void Assets::AddRuiAsset(CPakFile* pak, std::vector<RPakAssetEntry>* assetEntrie
     _vseginfo_t assetNameInfo{};
     assetNameInfo = pak->CreateNewSegment(name.size() + 1, SF_CLIENT | SF_CPU, 1);
 
-    ///////////////////////
-    // ASSET CONSTS/VARS
+    ////////////////////////////
+    // ASSET CONSTS/ARGS/VARS
 
     // GET THE SIZE OF THE STRUCT AND VALUES
 
@@ -258,6 +258,29 @@ void Assets::AddRuiAsset(CPakFile* pak, std::vector<RPakAssetEntry>* assetEntrie
         curValueOffset += size;
     }
 
+    // create the seginfo for the args
+    _vseginfo_t argsInfo{};
+    // for now, just contains a single arg cluster and all of the args
+    argsInfo = pak->CreateNewSegment(sizeof(RuiArgCluster) + sizeof(RuiArg) * mapEntry["args"].GetArray().Size(), SF_CLIENT | SF_CPU, 1);
+    
+    char* argsBuf = new char[sizeof(RuiArgCluster) + sizeof(RuiArg) * mapEntry["args"].GetArray().Size()]{};
+    rmem aBuf(argsBuf);
+
+    // write the arg cluster
+    RuiArgCluster* cluster = new RuiArgCluster();
+    cluster->argCount = mapEntry["args"].GetArray().Size();
+    cluster->argIndex = 0;
+
+    aBuf.write<RuiArgCluster>(*cluster);
+
+    // write the args
+    for (auto& it : mapEntry["args"].GetArray())
+    {
+        RuiArg* arg = new RuiArg();
+        // short hash, fuuuuuuuuuuuuck
+    }
+
+    
     //////////////////////
     // ASSET SUBHEADER
     
