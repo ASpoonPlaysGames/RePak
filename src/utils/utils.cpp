@@ -28,8 +28,7 @@ uintmax_t Utils::GetFileSize(const std::string& filename) // !TODO: change to 'f
 //-----------------------------------------------------------------------------
 size_t Utils::PadBuffer(char** buf, size_t size, size_t alignment)
 {
-	size_t extra = alignment - (size % alignment);
-	size_t newSize = size + extra;
+	size_t newSize = IALIGN(size, alignment);
 
 	char* newbuf = new char[newSize]{};
 	memcpy_s(newbuf, size, *buf, size);
@@ -58,7 +57,7 @@ size_t Utils::WriteStringVector(BinaryIO& out, std::vector<std::string>& dataVec
 //-----------------------------------------------------------------------------
 // purpose: get current system time as FILETIME
 //-----------------------------------------------------------------------------
-FILETIME Utils::GetFileTimeBySystem()
+FILETIME Utils::GetSystemFileTime()
 {
 	FILETIME ft;
 	GetSystemTimeAsFileTime(&ft);
@@ -80,7 +79,7 @@ void Utils::AppendSlash(std::string& in)
 //-----------------------------------------------------------------------------
 std::string Utils::ChangeExtension(const std::string& in, const std::string& ext)
 {
-	return std::filesystem::path(in).replace_extension(ext).u8string();
+	return std::filesystem::path(in).replace_extension(ext).string();
 }
 
 //-----------------------------------------------------------------------------
@@ -94,8 +93,8 @@ void Utils::ParseMapDocument(js::Document& doc, const fs::path& path)
         Error("couldn't open map file.\n");
 
     // begin json parsing
-    js::IStreamWrapper isw{ ifs };
-    doc.ParseStream<js::ParseFlag::kParseCommentsFlag | js::ParseFlag::kParseTrailingCommasFlag>(isw);
+    js::IStreamWrapper jsonStreamWrapper{ ifs };
+    doc.ParseStream<js::ParseFlag::kParseCommentsFlag | js::ParseFlag::kParseTrailingCommasFlag>(jsonStreamWrapper);
 
     // handle parse errors
     if (doc.HasParseError()) {
@@ -104,14 +103,14 @@ void Utils::ParseMapDocument(js::Document& doc, const fs::path& path)
         std::string lastLine = "";
         std::string curLine = "";
 
-        int offset = doc.GetErrorOffset();
+        size_t offset = doc.GetErrorOffset();
         ifs.clear();
         ifs.seekg(0, std::ios::beg);
         js::IStreamWrapper isw{ ifs };
 
         for (int i = 0; ; i++)
         {
-            char c = isw.Take();
+            const char c = isw.Take();
             curLine.push_back(c);
             if (c == '\n')
             {
@@ -135,30 +134,4 @@ void Utils::ParseMapDocument(js::Document& doc, const fs::path& path)
             GetParseError_En(doc.GetParseError()),
             lastLine.c_str(), curLine.c_str(), (std::string(columnNum, ' ') += '^').c_str());
     }
-}
-
-//-----------------------------------------------------------------------------
-// purpose: formats a standard string with prinf like syntax (see 'https://stackoverflow.com/a/49812018')
-//-----------------------------------------------------------------------------
-const std::string Utils::VFormat(const char* const zcFormat, ...)
-{
-
-    // initialize use of the variable argument array
-    va_list vaArgs;
-    va_start(vaArgs, zcFormat);
-
-    // reliably acquire the size
-    // from a copy of the variable argument array
-    // and a functionally reliable call to mock the formatting
-    va_list vaArgsCopy;
-    va_copy(vaArgsCopy, vaArgs);
-    const int iLen = std::vsnprintf(NULL, 0, zcFormat, vaArgsCopy);
-    va_end(vaArgsCopy);
-
-    // return a formatted string without risking memory mismanagement
-    // and without assuming any compiler or platform specific behavior
-    std::vector<char> zc(iLen + 1);
-    std::vsnprintf(zc.data(), zc.size(), zcFormat, vaArgs);
-    va_end(vaArgs);
-    return std::string(zc.data(), iLen);
 }
